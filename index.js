@@ -1,3 +1,6 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+
 const { createEventAdapter } = require('@slack/events-api');
 const { WebClient } = require('@slack/web-api');
 const createIssue = require('./jira');
@@ -9,6 +12,18 @@ const token = process.env.SLACK_TOKEN;
 // Initialize
 const slackEvents = createEventAdapter(slackSigningSecret);
 const web = new WebClient(token);
+
+const app = express();
+app.use('/slack', slackEvents.requestListener());
+
+app.use(bodyParser());
+
+app.get('/install/callback', (req,res)=> {
+    res.send('OK: Install callback');
+});
+app.get('*', (req,res)=> {
+    res.send('TFL Slack Bot');
+});
 
 const Replies = {
      Help: "*Adds topic idea to TFL guidance backlog* \n\n @guide <topic>, [description]",
@@ -56,11 +71,7 @@ slackEvents.on('error', (error) => {
 
 const port = process.env.PORT || 3000;
 
-(async () => {
-  // Start the built-in server
-  const server = await slackEvents.start(port);
-
-  // Log a message when the server is ready
-  console.info(`Listening for events on ${server.address().port}`);
-})();
+app.listen(port, () => {
+    console.log(`Listening on post ${port}...`);
+  });
 
