@@ -16,6 +16,7 @@
   "dependencies": {
     "@slack/events-api": "2.3.0",
     "@slack/web-api": "5.4.0",
+    "request": "2.88.0",
     "request-promise": "4.2.5"
   }
 }
