@@ -1,5 +1,7 @@
 const { createEventAdapter } = require('@slack/events-api');
 const { WebClient } = require('@slack/web-api');
+const createIssue = require('./jira');
+const util = require('util');
 
 const slackSigningSecret = process.env.SLACK_SIGNING_SECRET;
 const token = process.env.SLACK_TOKEN;
@@ -8,17 +10,11 @@ const token = process.env.SLACK_TOKEN;
 const slackEvents = createEventAdapter(slackSigningSecret);
 const web = new WebClient(token);
 
-// slackEvents.on('message', (event) => {
-//     console.log(event);
-//     console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
-//   });
-
 const Replies = {
      Help: "*Adds topic idea to TFL guidance backlog* \n\n @guide <topic>, [description]",
-
-     BacklogAdd: ""
+     BacklogAdded: `:white_check_mark: Created issue *%s*\n\n%s`,
+     Failure: `:warning: Error adding to backlog...`
 };
-const helpCommand = /(<@[A-Z])\w+>\W+help$/g;
 
 async function postReply(event, replyMessage) {
     await web.chat.postMessage({
@@ -29,11 +25,23 @@ async function postReply(event, replyMessage) {
 }
 
 async function processCommand(event) {
-    return await "Got it, thanks for reporting";
+    const {team, channel, ts} = event;
+    const [userTopic, description] = event.text.split(',');
+    const [,topic] = userTopic.split('> ');
+
+    const slackLink = `https://app.slack.com/client/${team}/${channel}/thread/${channel}-${ts}`;
+
+    try {
+        const {key, self} = await createIssue(topic, description, slackLink);
+        return util.format(Replies.BacklogAdded, key, self);
+    }
+    catch(err){
+        return Replies.Failure;
+    }
 }
 
 slackEvents.on('app_mention', async (event) => {
-    console.log(event.text);
+    const helpCommand = /(<@[A-Z])\w+>\W+help$/g;
     if (helpCommand.test(event.text)) {
         return await postReply(event, Replies.Help);
     }
