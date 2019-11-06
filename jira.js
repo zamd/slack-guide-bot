@@ -6,7 +6,11 @@ const issueTemplate = `
 "description":{"content":[
         {"content":[{"text":"%description%","type":"text"}],"type":"paragraph"},
         {"content":[{"marks":[{"attrs":{"href":"%link%"},"type":"link"}],"text":"Slack thread link","type":"text"}],"type":"paragraph"}
-    ],"type":"doc","version":1}}`;
+    ],"type":"doc","version":1},
+    "labels": [
+        "TFL-Slack-Input"
+    ]
+}`;
 
 module.exports = async function createIssue(summary, description, slackLink){
     const json = issueTemplate
