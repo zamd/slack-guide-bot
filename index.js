@@ -48,7 +48,8 @@ async function processCommand(event) {
 
     try {
         const {key, self} = await createIssue(topic, description, slackLink);
-        return util.format(Replies.BacklogAdded, key, self);
+        const browseLink = process.env.JIRA_DOMAIN + `/browse/${key}`;
+        return util.format(Replies.BacklogAdded, key, browseLink);
     }
     catch(err){
         return Replies.Failure;

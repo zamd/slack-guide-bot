@@ -18,7 +18,8 @@ module.exports = async function createIssue(summary, description, slackLink){
     .replace('%description%',description)
     .replace('%link%',slackLink)
 
-    return await rp(process.env.JIRA_ISSUE_URL, {
+    const issueUri = process.env.JIRA_DOMAIN + "/rest/api/3/issue"; 
+    return await rp(issueUri, {
         method: 'POST',
         headers: {
             "content-type": 'application/json',
