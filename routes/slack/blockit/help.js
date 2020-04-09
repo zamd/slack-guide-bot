@@ -5,7 +5,7 @@ module.exports = {
       text: {
         type: "mrkdwn",
         text:
-          "Hey there 👋 I'm GuideBot. I'm here to help you with field guidance in Slack.",
+          "Hey there 👋 I'm GuideBot. I'm here to help you with field guidance tasks in Slack.\nThere are two ways to get help:",
       },
     },
     {
@@ -13,7 +13,7 @@ module.exports = {
       text: {
         type: "mrkdwn",
         text:
-          "*1️⃣ Use the `@guide <task>, [description]` command*. This will add a task to TFL JIRA backlog. I'll ask for a due date (if applicable).",
+          "*1️⃣ Use the `guide <task>, [description]` command*. This will add a task to TFL JIRA backlog. I'll ask for a due date (if applicable).",
       },
     },
     {
@@ -21,7 +21,7 @@ module.exports = {
       text: {
         type: "mrkdwn",
         text:
-          "*2️⃣ Use the `@guide <export> [days]` command*. If you want to export channel messages for keyword/trend analysis. The default export duration is *30 days* and can be changed by using optional _days_ parameter. ",
+          "*2️⃣ Use the `guide <export>, [days]` command*. If you want to export #field-team-questions channel message for keyword/trend analysis. The default export duration is *30 days* and can be changed by using optional _days_ parameter. ",
       },
     },
     {
@@ -33,7 +33,7 @@ module.exports = {
         {
           type: "mrkdwn",
           text:
-            "❓Get help at any time with `@guide help` or type *help* in a DM with me",
+            "❓Get help at any time with `guide help` or type *help* in a DM with me",
         },
       ],
     },

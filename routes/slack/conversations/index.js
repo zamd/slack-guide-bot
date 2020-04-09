@@ -28,6 +28,7 @@ async function messagePump(channel, days) {
   const timestamp = startTime.minus({ days }).toSeconds();
 
   let cursor = "";
+  const exported = 0;
   do {
     const { messages, response_metadata } = await extract(
       channel,
@@ -35,6 +36,7 @@ async function messagePump(channel, days) {
       timestamp
     );
     const messageList = await transform(messages);
+    exported += messageList.length;
     await load(messageList);
 
     cursor = (response_metadata && response_metadata.next_cursor) || "";
@@ -44,6 +46,8 @@ async function messagePump(channel, days) {
     "Stopping message pump. Running time: %s",
     startTime.diffNow().toString()
   );
+
+  return { exported, duration: startTime.diffNow() };
 }
 
 module.exports = messagePump;

@@ -57,10 +57,13 @@ async function processTaskCommand(event) {
 }
 
 async function handleResult(result, event) {
+  debug("Export completed with stats: %o", result);
+  //TODO: details message
   await postReply(event, "Completed");
 }
 
 async function handleError(err, event) {
+  debug("Export error: %o", err);
   await postReply(event, `Failed: ${err}`);
 }
 
