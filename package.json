@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -17,8 +17,12 @@
     "@slack/events-api": "2.3.0",
     "@slack/web-api": "5.4.0",
     "body-parser": "1.19.0",
+    "cookie-parser": "1.4.5",
+    "debug": "4.1.1",
+    "dotenv": "8.2.0",
+    "ejs": "3.0.2",
     "express": "4.17.1",
-    "request": "2.88.0",
-    "request-promise": "4.2.5"
+    "request": "2.88.2",
+    "request-promise-native": "1.0.8"
   }
 }

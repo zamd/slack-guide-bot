@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/stylesheets/style.css" />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <% if(appInstalled) { %>
+    <div>
+      <p>App installed.</p>
+      <a href="/explore">Guide Explorer</a>
+    </div>
+    <% } else { %>
+    <p>Please <a href="/slack/install">install</a> the app to begin.</p>
+    <% } %>
+  </body>
+</html>

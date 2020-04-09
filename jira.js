@@ -1,4 +1,4 @@
-const rp = require('request-promise');
+const rp = require("request-promise-native");
 
 const issueTemplate = `
 {"summary":"%summary%","issuetype":{"id":"10455"},
@@ -12,25 +12,25 @@ const issueTemplate = `
     ]
 }`;
 
-module.exports = async function createIssue(summary, description, slackLink){
-    const json = issueTemplate
-    .replace('%summary%', summary)
-    .replace('%description%',description)
-    .replace('%link%',slackLink)
+module.exports = async function createIssue(summary, description, slackLink) {
+  const json = issueTemplate
+    .replace("%summary%", summary)
+    .replace("%description%", description)
+    .replace("%link%", slackLink);
 
-    const issueUri = process.env.JIRA_DOMAIN + "/rest/api/3/issue"; 
-    return await rp(issueUri, {
-        method: 'POST',
-        headers: {
-            "content-type": 'application/json',
-            "accept": 'application/json'
-        },
-        auth: {
-            username: process.env.JIRA_USERNAME, 
-            password: process.env.JIRA_API_TOKEN
-        },
-        json: {
-            fields: JSON.parse(json)
-        }
-    });
-}
+  const issueUri = process.env.JIRA_DOMAIN + "/rest/api/3/issue";
+  return await rp(issueUri, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      accept: "application/json",
+    },
+    auth: {
+      username: process.env.JIRA_USERNAME,
+      password: process.env.JIRA_API_TOKEN,
+    },
+    json: {
+      fields: JSON.parse(json),
+    },
+  });
+};
