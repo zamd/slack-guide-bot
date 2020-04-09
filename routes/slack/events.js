@@ -5,8 +5,11 @@ const { createEventAdapter } = require("@slack/events-api");
 const { WebClient } = require("@slack/web-api");
 const createIssue = require("../../jira");
 const util = require("util");
+const startMessagePump = require("./conversations");
 
 const debug = require("debug")("tfl-guide:events");
+
+const blockit = require("./blockit");
 
 // Initialize
 const slackEvents = createEventAdapter(process.env.SLACK_SIGNING_SECRET);
@@ -18,15 +21,17 @@ const Replies = {
   Help:
     "*Adds topic idea to TFL guidance backlog* \n\n @guide <topic>, [description]",
   BacklogAdded: `:white_check_mark: Created issue *%s*\n\n%s`,
+  ExportInitiated: `:white_check_mark: Export initiated`,
   Failure: `:warning: Error adding to backlog...`,
 };
 
-async function postReply(event, replyMessage) {
+async function postReply(event, text, blocks) {
   try {
     if (!web.token) web.token = process.env.SLACK_TOKEN;
     await web.chat.postMessage({
       channel: event.channel,
-      text: replyMessage,
+      text,
+      blocks,
       thread_ts: event.ts,
     });
   } catch (err) {
@@ -34,7 +39,7 @@ async function postReply(event, replyMessage) {
   }
 }
 
-async function processCommand(event) {
+async function processTaskCommand(event) {
   const { team, channel, ts } = event;
   const [userTopic, description] = event.text.split(",");
   const [, topic] = userTopic.split("> ");
@@ -51,13 +56,39 @@ async function processCommand(event) {
   }
 }
 
+async function handleResult(result, event) {
+  await postReply(event, "Completed");
+}
+
+async function handleError(err, event) {
+  await postReply(event, `Failed: ${err}`);
+}
+
+async function initiateExport(event) {
+  const digits = /[0-9]+(\.[0-9]+)?$/g;
+  const [days] = event.text.match(digits);
+
+  debug("New export request. duration: %d days", days);
+
+  const channel = event.channel;
+  startMessagePump(channel, days)
+    .then((res) => handleResult(res, event))
+    .catch((err) => handleError(err, event));
+  await postReply(event, Replies.ExportInitiated);
+}
+
 slackEvents.on("app_mention", async (event) => {
   const helpCommand = /(<@[A-Z])\w+>\W+help$/g;
+  const exportCommand = /<@\w+>\s+export\s+[0-9]+(\.[0-9]+)?$/g; //<@U011BQZP8DD> export 0.5
   if (helpCommand.test(event.text)) {
-    return await postReply(event, Replies.Help);
+    return await postReply(event, "", blockit.help.blocks);
   }
 
-  const replyMessage = await processCommand(event);
+  if (exportCommand.test(event.text)) {
+    return await initiateExport(event);
+  }
+
+  const replyMessage = await processTaskCommand(event);
   await postReply(event, replyMessage);
 });
 

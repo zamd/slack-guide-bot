@@ -4,6 +4,7 @@ const path = require("path");
 
 const slack = require("./routes/slack");
 const index = require("./routes/index");
+const messagePump = require("./routes/pump");
 
 const app = express();
 
@@ -12,7 +13,8 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
 app.use("/slack", slack);
-app.get("/", index);
+app.use("/pump", messagePump);
+app.use("/", index);
 
 const port = process.env.PORT || 3000;
 
