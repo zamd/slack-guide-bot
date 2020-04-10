@@ -5,6 +5,7 @@
 The bot also support `@guide export <days>` command, where it can extract messages from slack channel for last `<n>` days and push them to Kinesis stream. This enables the TFL team to periodically review questions to understand common topics and trends. This information is used to priortize proactive guidance for field teams.
 
 Use `@guide help` command to display help in slack
+
 ![Guide help](https://user-images.githubusercontent.com/1377205/79012984-1a45c880-7b81-11ea-93ad-f63da2eca459.png)
 
 # Deployment
