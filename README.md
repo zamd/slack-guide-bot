@@ -14,7 +14,7 @@ The Guide slack app (@guide bot) is running in [Auth0 Heroku account](https://da
 
 # Configuration
 
-When running local craete following config vars .env file. For Heroku add these as config vars.
+When running locally, create following config in .env file. For Heroku add these as config vars.
 
 ```
 SLACK_SIGNING_SECRET=6fa2069990eb365a4a8
