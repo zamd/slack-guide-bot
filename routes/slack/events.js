@@ -21,7 +21,7 @@ const Replies = {
   Help:
     "*Adds topic idea to TFL guidance backlog* \n\n @guide <topic>, [description]",
   BacklogAdded: `:white_check_mark: Created issue *%s*\n\n%s`,
-  ExportInitiated: `:white_check_mark: Export initiated`,
+  ExportInitiated: `Export initiated`,
   Failure: `:warning: Error adding to backlog...`,
 };
 
@@ -44,6 +44,14 @@ async function processTaskCommand(event) {
   const [userTopic, description] = event.text.split(",");
   const [, topic] = userTopic.split("> ");
 
+  debug(
+    "add to backlog: team:%s channel:%s topic:%s description:%s",
+    team,
+    channel,
+    topic,
+    description
+  );
+
   const slackLink = `https://app.slack.com/client/${team}/${channel}/thread/${channel}-${ts}`;
 
   try {
@@ -59,12 +67,15 @@ async function processTaskCommand(event) {
 async function handleResult(result, event) {
   debug("Export completed with stats: %o", result);
   //TODO: details message
-  await postReply(event, "Completed");
+  await postReply(
+    event,
+    `:white_check_mark: *Exported*: ${result.exported}, *Duration*: ${result.duration}`
+  );
 }
 
 async function handleError(err, event) {
   debug("Export error: %o", err);
-  await postReply(event, `Failed: ${err}`);
+  await postReply(event, `:exclamation: ${err}`);
 }
 
 async function initiateExport(event) {

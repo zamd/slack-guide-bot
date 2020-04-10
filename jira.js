@@ -1,5 +1,5 @@
 const rp = require("request-promise-native");
-
+const debug = require("debug")("tfl-guide:integration");
 const issueTemplate = `
 {"summary":"%summary%","issuetype":{"id":"10455"},
 "project":{"key":"TFT"},
@@ -19,6 +19,7 @@ module.exports = async function createIssue(summary, description, slackLink) {
     .replace("%link%", slackLink);
 
   const issueUri = process.env.JIRA_DOMAIN + "/rest/api/3/issue";
+  debug("Create JIRA item, POST %s", issueUri);
   return await rp(issueUri, {
     method: "POST",
     headers: {

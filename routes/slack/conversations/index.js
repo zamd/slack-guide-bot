@@ -28,7 +28,7 @@ async function messagePump(channel, days) {
   const timestamp = startTime.minus({ days }).toSeconds();
 
   let cursor = "";
-  const exported = 0;
+  let exported = 0;
   do {
     const { messages, response_metadata } = await extract(
       channel,
@@ -47,7 +47,7 @@ async function messagePump(channel, days) {
     startTime.diffNow().toString()
   );
 
-  return { exported, duration: startTime.diffNow() };
+  return { exported, duration: startTime.diffNow().toString() };
 }
 
 module.exports = messagePump;
