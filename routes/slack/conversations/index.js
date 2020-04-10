@@ -1,6 +1,9 @@
 const debug = require("debug")("tfl-guide:message/pump");
 const { DateTime } = require("luxon");
 const { WebClient } = require("@slack/web-api");
+
+const pushToKinesis = require("./../../../kinesis");
+
 const web = new WebClient(process.env.SLACK_TOKEN);
 
 async function extract(channel, cursor, timestamp) {
@@ -19,7 +22,8 @@ async function transform(messages) {
 
 async function load(messages) {
   debug("Loading %d messages...", messages.length);
-  // PUSH to Firehose
+  const data = await pushToKinesis(messages);
+  debug("Loaded: %d, failed: %d ", data.Records.length, data.FailedRecordCount);
 }
 
 async function messagePump(channel, days) {
