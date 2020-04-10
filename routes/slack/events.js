@@ -32,7 +32,7 @@ async function postReply(event, text, blocks) {
       channel: event.channel,
       text,
       blocks,
-      thread_ts: event.ts,
+      thread_ts: event.thread_ts || event.ts,
     });
   } catch (err) {
     debug("postMessage failed: %o", err);
@@ -41,7 +41,7 @@ async function postReply(event, text, blocks) {
 
 async function processTaskCommand(event) {
   const { team, channel, ts } = event;
-  const [userTopic, description] = event.text.split(",");
+  const [userTopic, description = ""] = event.text.split(",");
   const [, topic] = userTopic.split("> ");
 
   debug(
@@ -57,6 +57,7 @@ async function processTaskCommand(event) {
   try {
     const { key, self } = await createIssue(topic, description, slackLink);
     const browseLink = process.env.JIRA_DOMAIN + `/browse/${key}`;
+    debug("Issue created %s", key);
     return util.format(Replies.BacklogAdded, key, browseLink);
   } catch (err) {
     debug("Command failed: %O", err);
@@ -107,7 +108,7 @@ slackEvents.on("app_mention", async (event) => {
 });
 
 slackEvents.on("error", (error) => {
-  console.error(error);
+  debug("Slack error: %o", error);
 });
 
 module.exports = router;
