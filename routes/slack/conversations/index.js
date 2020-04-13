@@ -15,9 +15,22 @@ async function extract(channel, cursor, timestamp) {
   });
 }
 
+const channelJoinLeaveMessages = (m) =>
+  !(
+    m.subtype &&
+    (m.subtype === "channel_join" || m.subtype === "channel_leave")
+  );
+const conciergeMessage = (m) => !(m.bot_id && m.bot_id === "B16TDKRNG");
+
 async function transform(messages) {
   debug("Transforming %d messages...", messages.length);
-  return messages.map((m) => m.text);
+
+  return messages
+    .filter(channelJoinLeaveMessages)
+    .filter(conciergeMessage)
+    .map((m) => m.text)
+    .map((t) => t.split("\n").join("\t")) //replace incline newline with a tab
+    .reverse(); //TODO: find better way to handle reverse ts
 }
 
 async function load(messages) {
@@ -41,7 +54,7 @@ async function messagePump(channel, days) {
     );
     const messageList = await transform(messages);
     exported += messageList.length;
-    await load(messageList);
+    if (messageList.length > 0) await load(messageList);
 
     cursor = (response_metadata && response_metadata.next_cursor) || "";
   } while (cursor);
