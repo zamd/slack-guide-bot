@@ -29,7 +29,7 @@ async function transform(messages) {
     .filter(channelJoinLeaveMessages)
     .filter(conciergeMessage)
     .map((m) => m.text)
-    .map((t) => t.split("\n").join("\t")) //replace incline newline with a tab
+    .map((t) => t.split("\n").join(" ")) //replace incline newline with a " "
     .reverse(); //TODO: find better way to handle reverse ts
 }
 
