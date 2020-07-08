@@ -1,16 +1,6 @@
 const rp = require("request-promise-native");
 const debug = require("debug")("tfl-guide:integration");
-const issueTemplate = `
-{"summary":"%summary%","issuetype":{"id":"10455"},
-"project":{"key":"TFT"},
-"description":{"content":[
-        {"content":[{"text":"%description%","type":"text"}],"type":"paragraph"},
-        {"content":[{"marks":[{"attrs":{"href":"%link%"},"type":"link"}],"text":"Slack thread link","type":"text"}],"type":"paragraph"}
-    ],"type":"doc","version":1},
-    "labels": [
-        "TFL-Slack-Input"
-    ]
-}`;
+const issueTemplate = require("./issueTemplate.json");
 
 module.exports = async function createIssue(summary, description, slackLink) {
   const json = issueTemplate
@@ -30,8 +20,6 @@ module.exports = async function createIssue(summary, description, slackLink) {
       username: process.env.JIRA_USERNAME,
       password: process.env.JIRA_API_TOKEN,
     },
-    json: {
-      fields: JSON.parse(json),
-    },
+    json: JSON.parse(json),
   });
 };

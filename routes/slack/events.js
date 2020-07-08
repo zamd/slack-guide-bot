@@ -41,7 +41,9 @@ async function postReply(event, text, blocks) {
 
 async function processTaskCommand(event) {
   const { team, channel, ts } = event;
-  const [userTopic, description = ""] = event.text.split(",");
+  const [userTopic, description = ""] = event.text
+    .split(",")
+    .map((str) => str.trim());
   const [, topic] = userTopic.split("> ");
 
   debug(
