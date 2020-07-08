@@ -3,6 +3,7 @@ const debug = require("debug")("tfl-guide:integration");
 const issueTemplate = require("./issueTemplate.json");
 
 module.exports = async function createIssue(summary, description, slackLink) {
+  if (!description) description = summary;
   const json = issueTemplate
     .replace("%summary%", summary)
     .replace("%description%", description)
