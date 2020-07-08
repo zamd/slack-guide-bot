@@ -4,7 +4,7 @@ const issueTemplate = require("./issueTemplate.json");
 
 module.exports = async function createIssue(summary, description, slackLink) {
   if (!description) description = summary;
-  const json = issueTemplate
+  const json = JSON.stringify(issueTemplate)
     .replace("%summary%", summary)
     .replace("%description%", description)
     .replace("%link%", slackLink);
