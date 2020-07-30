@@ -8,7 +8,7 @@
     "test": "mocha --watch ./test/**/*.test.js"
   },
   "engines": {
-    "node": "10.16.0"
+    "node": "12.x"
   },
   "keywords": [],
   "author": "",
