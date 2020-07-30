@@ -9,8 +9,8 @@ const stream = new Kinesis({
 });
 
 async function pushToKinesis(messages) {
-  const recs = messages.map((m) => ({
-    Data: m + "\n",
+  const recs = messages.map((message) => ({
+    Data: JSON.stringify(message),
     PartitionKey: "#field-team-questions",
   }));
 

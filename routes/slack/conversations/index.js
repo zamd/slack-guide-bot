@@ -23,29 +23,30 @@ const channelJoinLeaveMessages = (m) =>
     (m.subtype === "channel_join" || m.subtype === "channel_leave")
   );
 const conciergeMessage = (m) => !(m.bot_id && m.bot_id === "B16TDKRNG");
+const sanitize = (text) =>
+  `"${text.replace(/\n/g, "\\n").replace(/~/g, "U+223C")}"`;
 
 async function transform(messages) {
   debug("Transforming %d messages...", messages.length);
-
   return messages
     .filter(channelJoinLeaveMessages)
     .filter(conciergeMessage)
     .reverse() //TODO: find better way to handle reverse ts
     .map((message) => ({
       event_type: "message",
-      text: message.text,
-      reply_count: message.reply_count,
-      reply_users_count: message.reply_users_count,
+      text: sanitize(message.text),
+      reply_count: message.reply_count || 0,
+      reply_users_count: message.reply_users_count || 0,
       ts: message.ts,
-      latest_reply: message.latest_reply,
+      latest_reply: message.latest_reply || "",
       user: message.user,
     }));
 }
 
 async function load(messages) {
   debug("Loading %d messages...", messages.length);
-  // const data = await pushToKinesis(messages);
-  //  debug("Loaded: %d, failed: %d ", data.Records.length, data.FailedRecordCount);
+  const data = await pushToKinesis(messages);
+  debug("Loaded: %d, failed: %d ", data.Records.length, data.FailedRecordCount);
 }
 function union(setA, setB) {
   let _union = new Set(setA);
@@ -61,7 +62,7 @@ async function pumpProfiles(users) {
     maxConcurrent: 50,
     reservoir: 100,
     reservoirIncreaseAmount: 100,
-    reservoirIncreaseInterval: 6000, // release 100 every 1 minute
+    reservoirIncreaseInterval: 60 * 1000, // release 100 every 1 minute
     trackDoneStatus: true,
   });
 
@@ -75,16 +76,21 @@ async function pumpProfiles(users) {
 
   const results = await Promise.allSettled(jobs);
   const profiles = results
+    .map((result, index) => ({ ...result, user: users[index] }))
     .filter((result) => result.status === "fulfilled" && result.value.ok)
-    .map((result) => result.value.profile)
+    .map((result) => ({
+      ...result.value.profile,
+      user: result.user,
+    }))
     .map((profile) => ({
       event_type: "profile",
+      user: profile.user,
       display_name: profile.display_name,
-      deparment:
+      department:
         profile.fields &&
         profile.fields["XfDW01AH2Q"] &&
         profile.fields["XfDW01AH2Q"].value,
-      devision:
+      division:
         profile.fields &&
         profile.fields["XfDW01AH0U"] &&
         profile.fields["XfDW01AH0U"].value,
@@ -109,7 +115,7 @@ async function pumpReplies(channel, threads) {
     maxConcurrent: 25,
     reservoir: 50,
     reservoirIncreaseAmount: 50,
-    reservoirIncreaseInterval: 6000, // release 50 every 1 minute
+    reservoirIncreaseInterval: 60 * 1000, // release 50 every 1 minute
     trackDoneStatus: true,
   });
 
@@ -137,8 +143,8 @@ async function pumpReplies(channel, threads) {
     .flatMap((result) => result.value.messages)
     .filter((message) => !message.reply_count) // filter out first message for replies
     .map((message) => ({
-      event_ype: "reply",
-      text: message.text,
+      event_type: "reply",
+      text: sanitize(message.text),
       thread_ts: message.thread_ts,
       user: message.user,
     }));
