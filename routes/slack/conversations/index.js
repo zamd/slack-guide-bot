@@ -23,8 +23,18 @@ const channelJoinLeaveMessages = (m) =>
     (m.subtype === "channel_join" || m.subtype === "channel_leave")
   );
 const conciergeMessage = (m) => !(m.bot_id && m.bot_id === "B16TDKRNG");
-const sanitize = (text) =>
-  `"${text.replace(/\n/g, "\\n").replace(/~/g, "U+223C")}"`;
+
+const extractBotMessageText = ({ text, attachments }) =>
+  attachments && attachments.length > 0
+    ? `"${attachments[0].fallback.replace(/\n/g, "\\n")}"`
+    : text;
+
+const extractAndSanitizeText = (message) => {
+  const { text, subtype, attachments } = message;
+  return subtype === "bot_message"
+    ? extractBotMessageText(message)
+    : `"${text.replace(/\n/g, "\\n").replace(/~/g, "U+223C")}"`;
+};
 
 async function transform(messages) {
   debug("Transforming %d messages...", messages.length);
@@ -34,12 +44,12 @@ async function transform(messages) {
     .reverse() //TODO: find better way to handle reverse ts
     .map((message) => ({
       event_type: "message",
-      text: sanitize(message.text),
+      text: extractAndSanitizeText(message),
       reply_count: message.reply_count || 0,
       reply_users_count: message.reply_users_count || 0,
       ts: message.ts,
       latest_reply: message.latest_reply || "",
-      user: message.user,
+      user: message.subtype === "bot_message" ? message.bot_id : message.user,
     }));
 }
 
@@ -144,9 +154,9 @@ async function pumpReplies(channel, threads) {
     .filter((message) => !message.reply_count) // filter out first message for replies
     .map((message) => ({
       event_type: "reply",
-      text: sanitize(message.text),
+      text: extractAndSanitizeText(message),
       thread_ts: message.thread_ts,
-      user: message.user,
+      user: message.subtype === "bot_message" ? message.bot_id : message.user,
     }));
 
   for (const chunk of _.chunk(replyMessages, 50)) await load(chunk);
