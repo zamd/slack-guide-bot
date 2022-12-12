@@ -23,7 +23,7 @@
     "debug": "4.1.1",
     "dotenv": "8.2.0",
     "ejs": "3.0.2",
-    "express": "4.17.1",
+    "express": "4.17.3",
     "jsonexport": "^3.0.1",
     "lodash": "^4.17.19",
     "luxon": "1.23.0",
